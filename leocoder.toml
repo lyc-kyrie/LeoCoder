@@ -1,0 +1,30 @@
+default_model = "dashscope/qwen3.8-flash"
+
+[providers.dashscope]
+type = "openai-compatible"
+base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+api_key_env = "DASHSCOPE_API_KEY"
+parallel_tool_calls = true
+
+[models."dashscope/qwen3.8-flash"]
+label = "Qwen3.8-Flash"
+context_window = 128000
+
+[permissions]
+mode = "ask"
+
+[ui]
+theme = "default"
+
+# 本地参考 MCP server：随包提供，用于端到端验证 MCP 链路。
+# 放在项目配置而不是全局，测试以 tmp_path 为 project_root 时自然读不到它。
+# {python} 在连接时解析为宿主解释器（sys.executable），避开 Windows 上 `python`
+# 指向 Microsoft Store 别名占位符的问题。
+# -I 是必需的，不是优化：stdio 子进程继承宿主 cwd，而 -m 会把 cwd 放进 sys.path[0]；
+# 一旦从 leocoder/ 目录启动，本包的 mcp 子包就会遮蔽同名 MCP SDK，握手只会留下
+# 一句「MCP 连接失败」。-I 隐含 -P，不把这条不安全路径加进 sys.path。
+[mcp.devtools]
+type = "local"
+command = ["{python}", "-I", "-m", "leocoder.mcp.server"]
+enabled = true
+timeout_ms = 20000
